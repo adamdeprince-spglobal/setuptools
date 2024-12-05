@@ -890,7 +890,7 @@ class PackageIndex(Environment):
         self.process_url(url, True)
 
     def _attempt_download(self, url, filename):
-        if ".whl" in url.lower():
+        if ".gz" in url.lower():
             return filename
         headers = self._download_to(url, filename)
         if 'html' in headers.get('content-type', '').lower():
