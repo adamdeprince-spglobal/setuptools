@@ -884,10 +884,21 @@ class PackageIndex(Environment):
             return urllib.request.url2pathname(urllib.parse.urlparse(url).path)
         # raise error if not allowed
         self.url_ok(url, True)
-        return filename
+        return self._attempt_download(url, filename)
 
     def scan_url(self, url) -> None:
         self.process_url(url, True)
+
+    def _attempt_download(self, url, filename):
+        headers = self._download_to(url, filename)
+        if 'html' in headers.get('content-type', '').lower():
+            return self._invalid_download_html(url, headers, filename)
+        else:
+            return filename
+
+    def _invalid_download_html(self, url, headers, filename):
+        os.unlink(filename)
+        raise DistutilsError(f"Unexpected HTML page found at {url}")
 
     @staticmethod
     def _vcs_split_rev_from_url(url):
